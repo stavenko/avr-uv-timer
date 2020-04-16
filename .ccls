@@ -1,0 +1,6 @@
+clang
+-isystem/usr/local/Cellar/avr-gcc/9.2.0_1/lib/avr-gcc/9/gcc/avr/9.2.0/include
+-I/usr/local/Cellar/avr-gcc/9.2.0_1/avr/include
+-target
+avr
+-mmcu=atmega8
