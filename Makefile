@@ -1,20 +1,20 @@
 BIN=uv-timer
-OBJS=led.o test.o
+OBJS=i2c.o main.o oled.o utils.o
 
 CC=avr-gcc
+ARCH=atmega8
 OBJCOPY=avr-objcopy
-CFLAGS=-Os -DF_CPU=16000000UL -mmcu=atmega328p
-PORT=/dev/ttyACM0
+CFLAGS=-Os -g -mmcu=${ARCH} -Wall
 
 ${BIN}.hex: ${BIN}.elf
-    ${OBJCOPY} -O ihex -R .eeprom $< $@
+	${OBJCOPY} -O ihex -R .eeprom $< $@
 
 ${BIN}.elf: ${OBJS}
-    ${CC} -o $@ $^
+	${CC} -o $@ $^
 
 install: ${BIN}.hex
-    avrdude -c usbasp -p m8 -U flash:w:$<
+	avrdude -c usbasp -p m8 -U flash:w:$<
 
 clean:
-    rm -f ${BIN}.elf ${BIN}.hex ${OBJS}
+	rm -f ${BIN}.elf ${BIN}.hex ${OBJS}
 

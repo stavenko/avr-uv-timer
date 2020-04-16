@@ -1,4 +1,4 @@
-#include "util.h"
+#include "utils.h"
 
 uint8_t mask(uint8_t bit) {
   return 1 << bit;
