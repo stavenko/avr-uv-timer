@@ -3,13 +3,14 @@
 #include <avr/cpufunc.h> 
 #include <stdlib.h>
 #include "utils.h"
+#include "i2c.h"
+#include "oled.h"
 
-#define LED PD4
+#define LED PD5
 #define LED_PORT PORTD
 #define SENSOR_DT PB0
 #define SENSOR_CLK PB1
 #define SENSOR_BTN PB2
-#define OLED_I2C_SLAVE_ADDR 0x78
 const uint16_t ms1_ticks = 125;
 const uint16_t ms100_ticks = ms1_ticks * 100;
 
@@ -19,13 +20,36 @@ uint16_t milliseconds_passed = 0;
 uint8_t isPressed;
 int16_t additional = 0;
 
+uint8_t texture[] = {
+  0xff, 
+  0xf0,
+  0xf0,
+  0xff,
+  0xff, 
+  0x0f,
+  0x0f,
+  0xff
+};
 
+uint8_t ignore = 0x01;
+
+uint8_t biipeer = 0;
+
+struct coords c = {0, 0};
 
 ISR (TIMER1_OVF_vect)
 {
-  LED_PORT ^= (1 << LED);
+  biipeer ^= 0x01;
+  LED_PORT = (biipeer << LED)| i2c_error();
   TCNT1 = some_period + (additional);
   milliseconds_passed += 1;
+  struct bitmap bm;
+  bm.buffer = texture;
+  bm.width = 8;
+  bm.height = 8;
+  c.left += 1;
+  oled_clear_screen();
+  oled_send_symbol(&bm, &c);
 }
 
 
@@ -60,12 +84,18 @@ void setup_timer() {
 
 
 int main() {
-  DDRD = (1 << LED);
+  DDRD = (1 << LED) | (1 << PD0) | (1 << PD1) | (1 << PD2) | (1 << PD3);
   setup_timer();
   PORTB = (1 << SENSOR_DT ) | (1 << SENSOR_CLK ) | (1 << SENSOR_BTN );
   DDRB = 0x00;
   _NOP();
   sensor_clk = getValue(&PINB, SENSOR_CLK);
+  i2c_init();
+  oled_turn_sleep();
+  oled_init();
+  oled_turn_on();
+  oled_clear_screen();
+
 
   sei();
   while (1) {
