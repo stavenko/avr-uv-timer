@@ -30,6 +30,12 @@ uint8_t texture[] = {
   0x0f,
   0xff
 };
+uint8_t texture2[] = {
+  0x81, 0x81,
+  0x83, 0xc1,
+  0x83, 0xc1,
+  0x81, 0x81
+};
 
 uint8_t ignore = 0x01;
 
@@ -43,13 +49,6 @@ ISR (TIMER1_OVF_vect)
   LED_PORT = (biipeer << LED)| i2c_error();
   TCNT1 = some_period + (additional);
   milliseconds_passed += 1;
-  struct bitmap bm;
-  bm.buffer = texture;
-  bm.width = 8;
-  bm.height = 8;
-  c.left += 1;
-  oled_clear_screen();
-  oled_send_symbol(&bm, &c);
 }
 
 
@@ -93,8 +92,15 @@ int main() {
   i2c_init();
   oled_turn_sleep();
   oled_init();
-  oled_turn_on();
   oled_clear_screen();
+  oled_turn_on();
+
+  struct bitmap bm;
+  bm.buffer = texture2;
+  bm.width = 4;
+  bm.height = 2;
+  c.top = 4;
+  oled_send_symbol(&bm, &c);
 
 
   sei();

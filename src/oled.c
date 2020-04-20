@@ -10,7 +10,7 @@ void oled_send_zero_data(uint16_t times) {
   
   i2c_stop();
 }
-void oled_send_data(uint8_t *data, uint8_t bytes) {
+void oled_send_data(uint8_t *data, uint16_t bytes) {
   i2c_start_with(OLED_I2C_SLAVE_ADDR);
   i2c_write(0x40); // 
   for (int i = 0; i < bytes; i++) {
@@ -63,7 +63,7 @@ void oled_setup_page(uint8_t page_start, uint8_t page_end, uint8_t col_start, ui
   oled_send_command(set_col, 3);
 }
 const uint8_t init_sequence [] = {    // Initialization Sequence
-    0x20, 0b00,      // Set Memory Addressing Mode
+    0x20, 0b01,      // Set Memory Addressing Mode
     // 00=Horizontal Addressing Mode; 01=Vertical Addressing Mode;
     // 10=Page Addressing Mode (RESET); 11=Invalid
     0xB0,            // Set Page Start Address for Page Addressing Mode, 0-7
@@ -92,15 +92,14 @@ void oled_init(){
   uint8_t size = sizeof(init_sequence);
   oled_send_command((uint8_t*)init_sequence, size);
   called();
+  fb_init();
 }
 
 void oled_send_symbol(struct bitmap *symbol, struct coords *to_coords) {
-  uint8_t page_start = to_coords->top;
-  uint8_t page_end = page_start;
-  uint8_t col_start = to_coords->left;
-  uint8_t col_end = col_start + symbol->width;
-  oled_setup_page(page_start, page_end, col_start, col_end);
-  oled_send_data(symbol->buffer, symbol->height * symbol->width / 8);
+  
+  fb_set_bitmap(symbol, to_coords, OVER);
+  oled_setup_page(0, 3, 0, 127);
+  oled_send_data(fb_ptr(), fb_bytes());
 }
 
 void oled_clear_screen() {
@@ -111,3 +110,4 @@ void oled_clear_screen() {
   oled_setup_page(page_start, page_end, col_start, col_end);
   oled_send_zero_data(4 * 128);
 }
+
