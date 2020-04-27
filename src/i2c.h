@@ -16,6 +16,6 @@ uint8_t i2c_get_status();
 
 void i2c_start_with(uint8_t address);
 uint8_t i2c_error();
-uint8_t called();
+void called();
 
 #endif

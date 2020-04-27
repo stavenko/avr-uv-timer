@@ -4,7 +4,11 @@
 #include <stdlib.h>
 #include "utils.h"
 #include "i2c.h"
+// #include "get-glyph-from-font.h"
 #include "oled.h"
+// #include "constants.h"
+// #include "timer.h"
+// #include "render-ui.h"
 
 #define LED PD5
 #define LED_PORT PORTD
@@ -16,39 +20,26 @@ const uint16_t ms100_ticks = ms1_ticks * 100;
 
 const uint16_t some_period = 0xffff - ms100_ticks;
 const uint8_t increment = 140;
-uint16_t milliseconds_passed = 0;
+struct bitmap clock_icon;
 uint8_t isPressed;
 int16_t additional = 0;
 
-uint8_t texture[] = {
-  0xff, 
-  0xf0,
-  0xf0,
-  0xff,
-  0xff, 
-  0x0f,
-  0x0f,
-  0xff
-};
-uint8_t texture2[] = {
-  0x81, 0x81,
-  0x83, 0xc1,
-  0x83, 0xc1,
-  0x81, 0x81
-};
-
-uint8_t ignore = 0x01;
 
 uint8_t biipeer = 0;
 
-struct coords c = {0, 0};
 
 ISR (TIMER1_OVF_vect)
 {
   biipeer ^= 0x01;
   LED_PORT = (biipeer << LED)| i2c_error();
   TCNT1 = some_period + (additional);
-  milliseconds_passed += 1;
+
+  // ms_tick();
+
+  // const struct Timer* timer_state = get_app_state();
+  // render_ui(timer_state);
+
+  
 }
 
 
@@ -62,14 +53,17 @@ void process_sensor_state() {
     uint8_t dt = getValue(&PINB, SENSOR_DT); 
     if (dt != clk) {
       additional += increment;
+      next_item();
     } else {
       additional -= increment;
+      prev_item();
     }
   }
   uint8_t btn = getValue(&PINB, SENSOR_BTN); 
 
   if (btn == 0) {
     additional = 0;
+    press_button();
   }
 }
 
@@ -82,7 +76,7 @@ void setup_timer() {
 }
 
 
-int main() {
+int main() { 
   DDRD = (1 << LED) | (1 << PD0) | (1 << PD1) | (1 << PD2) | (1 << PD3);
   setup_timer();
   PORTB = (1 << SENSOR_DT ) | (1 << SENSOR_CLK ) | (1 << SENSOR_BTN );
@@ -94,14 +88,6 @@ int main() {
   oled_init();
   oled_clear_screen();
   oled_turn_on();
-
-  struct bitmap bm;
-  bm.buffer = texture2;
-  bm.width = 4;
-  bm.height = 2;
-  c.top = 4;
-  oled_send_symbol(&bm, &c);
-
 
   sei();
   while (1) {

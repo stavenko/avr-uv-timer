@@ -5,6 +5,7 @@
 #include "frame-buffer.h"
 #define OLED_I2C_SLAVE_ADDR 0x78
 
+void oled_send_framebuffer();
 void oled_send_data(uint8_t *data, uint16_t bytes);
 void oled_send_command(uint8_t *data, uint8_t bytes);
 void oled_send_symbol(struct bitmap *symbol, struct coords *to_coords);
@@ -16,5 +17,7 @@ void oled_ignore_ram(uint8_t ignore);
 void oled_init();
 
 void oled_clear_screen();
+void oled_render_text(char *bytes, struct coords *to_coords);
+void oled_render_text_w(wchar_t *bytes, uint16_t num_bytes, struct coords *to_coords);
 
 #endif

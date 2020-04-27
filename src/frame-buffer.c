@@ -1,16 +1,22 @@
 #include <avr/io.h>
 #include <stdlib.h>
 #include "frame-buffer.h"
+#include "constants.h"
+#include "get-glyph-from-font.h"
 
 uint32_t *framebuffer;
 void fb_init() {
-  framebuffer = malloc(128 * sizeof(uint32_t));
+  framebuffer = malloc(128 * 4);
   fb_clear();
 }
 
 void fb_clear() {
   for (int i = 0; i < 128; i++) {
-    framebuffer[i] = 0;
+    if (i == 0 || i == 127) {
+      framebuffer[i] = 0xffffffff;
+    }else {
+      framebuffer[i] = 0;
+    }
   }
 }
 void fb_free() {
@@ -25,31 +31,57 @@ uint8_t *fb_ptr() {
 }
 
 
-void fb_set_bitmap(struct bitmap *image, struct coords *offset, enum OPERATION op) {
-
-  uint8_t startingColumn = offset->left;
-  uint8_t startingBit = offset->top;
+void fb_set_bitmap(const struct bitmap *image, uint16_t left, uint16_t top, uint8_t is_inversed, enum OPERATION op) {
+  uint16_t startingColumn = left;
+  uint8_t startingBit = top;
   for (int i = 0; i < image->width; i++ ) {
     uint32_t row = 0;
     int height = image->height - 1;
     for (int j = 0; j < image->height; j++) {
       uint32_t value = image->buffer[j + i * image->height];
+      if (is_inversed) value = ~value;
       uint8_t shift = 8 * (height -j);
       row |= (value << shift);
     }
     row = row << startingBit;
+    uint32_t reversedRow = 0;
+    for (int i = 0; i < 32; i ++) {
+      reversedRow |= ((row >> i) & 1) << (31 - i);
+    }
     switch (op) {
       case OVER:  
-        framebuffer[startingColumn + i] = row;
+        framebuffer[startingColumn + i] = reversedRow;
         break;;
       case AND:
-        framebuffer[startingColumn +i] &= row;
+        framebuffer[startingColumn +i] &= reversedRow;
         break;
       case OR:
-        framebuffer[startingColumn +i] |= row;
+        framebuffer[startingColumn +i] |= reversedRow;
         break;
       }
 
   }
 }
 
+void fb_render_text(char* bytes, struct coords * to_coords, enum OPERATION op) {
+  uint16_t shift = 0;
+  struct bitmap *glyph = malloc(sizeof(struct bitmap));
+  glyph->width = 0;
+  glyph->height = 0;
+  glyph->buffer = 0;
+  char *ptr = bytes;
+  while (*ptr != 0) {
+    if (*ptr == 0x20) {
+      shift += space_in_sentence;
+      ptr++;
+      continue;
+    }
+    get_glyph_from_font(*ptr, glyph);
+    if (glyph->buffer != 0) {
+      fb_set_bitmap(glyph, to_coords->left + shift, to_coords->top, 0, OR);
+      shift += glyph->width;
+      shift += space_in_word;
+    };
+    ptr++;
+  }
+}

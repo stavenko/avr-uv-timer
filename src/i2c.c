@@ -19,7 +19,7 @@ void i2c_init() {
 uint8_t i2c_error() {
   return error | (is_called << SSS);
 }
-uint8_t called() {
+void called() {
   is_called = 1;
 }
 
