@@ -8,5 +8,6 @@ extern uint8_t space_in_word;
 extern uint8_t space_in_sentence;
 extern const struct bitmap arrowImageTexture;
 extern const struct bitmap clockImageTexture;
+extern const struct bitmap frameTexture;
 
 #endif

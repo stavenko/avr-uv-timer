@@ -78,3 +78,6 @@ const struct Timer *get_app_state() {
   return &ApplicationState;
 }
 
+void _debug(uint16_t v) {
+  ApplicationState.minutes = v;
+}

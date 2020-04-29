@@ -17,7 +17,7 @@ enum OPERATION {
 void fb_init();
 void fb_free();
 void fb_clear();
-void fb_set_bitmap(const struct bitmap *image, uint16_t left, uint16_t top, uint8_t inversed, enum OPERATION);
+void fb_set_bitmap(const struct bitmap *image, uint16_t left, uint16_t top, enum OPERATION);
 void fb_render_text(char* bytes, struct coords * to_coords, enum OPERATION op);
 
 uint8_t *fb_ptr();

@@ -12,7 +12,7 @@ void fb_init() {
 
 void fb_clear() {
   for (int i = 0; i < 128; i++) {
-    if (i == 0 || i == 127) {
+    if ( i == 127) {
       framebuffer[i] = 0xffffffff;
     }else {
       framebuffer[i] = 0;
@@ -31,7 +31,7 @@ uint8_t *fb_ptr() {
 }
 
 
-void fb_set_bitmap(const struct bitmap *image, uint16_t left, uint16_t top, uint8_t is_inversed, enum OPERATION op) {
+void fb_set_bitmap(const struct bitmap *image, uint16_t left, uint16_t top, enum OPERATION op) {
   uint16_t startingColumn = left;
   uint8_t startingBit = top;
   for (int i = 0; i < image->width; i++ ) {
@@ -39,7 +39,6 @@ void fb_set_bitmap(const struct bitmap *image, uint16_t left, uint16_t top, uint
     int height = image->height - 1;
     for (int j = 0; j < image->height; j++) {
       uint32_t value = image->buffer[j + i * image->height];
-      if (is_inversed) value = ~value;
       uint8_t shift = 8 * (height -j);
       row |= (value << shift);
     }
@@ -63,12 +62,15 @@ void fb_set_bitmap(const struct bitmap *image, uint16_t left, uint16_t top, uint
   }
 }
 
+static struct bitmap *glyph = 0;
 void fb_render_text(char* bytes, struct coords * to_coords, enum OPERATION op) {
   uint16_t shift = 0;
-  struct bitmap *glyph = malloc(sizeof(struct bitmap));
-  glyph->width = 0;
-  glyph->height = 0;
-  glyph->buffer = 0;
+  if (glyph == 0) {
+    glyph = malloc(sizeof(struct bitmap));
+    glyph->width = 0;
+    glyph->height = 0;
+    glyph->buffer = 0;
+  }
   char *ptr = bytes;
   while (*ptr != 0) {
     if (*ptr == 0x20) {
@@ -78,7 +80,7 @@ void fb_render_text(char* bytes, struct coords * to_coords, enum OPERATION op) {
     }
     get_glyph_from_font(*ptr, glyph);
     if (glyph->buffer != 0) {
-      fb_set_bitmap(glyph, to_coords->left + shift, to_coords->top, 0, OR);
+      fb_set_bitmap(glyph, to_coords->left + shift, to_coords->top, OR);
       shift += glyph->width;
       shift += space_in_word;
     };

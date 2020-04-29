@@ -2,6 +2,7 @@
 #include "i2c.h"
 #include "constants.h"
 #include "get-glyph-from-font.h"
+#include <string.h>
 
 void oled_send_zero_data(uint16_t times) {
   i2c_start_with(OLED_I2C_SLAVE_ADDR);
@@ -97,7 +98,7 @@ void oled_init(){
 }
 
 void oled_send_symbol(struct bitmap *symbol, struct coords *to_coords) {
-  fb_set_bitmap(symbol, to_coords->left, to_coords->top, 0, OVER);
+  fb_set_bitmap(symbol, to_coords->left, to_coords->top, OVER);
   oled_setup_page(0, 3, 0, 127);
   oled_send_data(fb_ptr(), fb_bytes());
 }
@@ -116,9 +117,7 @@ void oled_render_text(char *bytes, struct coords *to_coords) {
 void oled_render_text_w(wchar_t *bytes, uint16_t num_bytes, struct coords *to_coords) {
   uint16_t shift = 0;
   struct bitmap *glyph = malloc(sizeof(struct bitmap));
-  glyph->width = 0;
-  glyph->height = 0;
-  glyph->buffer = 0;
+  memset(glyph, 0, sizeof(struct bitmap));
   wchar_t *ptr = bytes;
   while (*ptr != 0) {
     if (*ptr == 0x20) {
@@ -129,7 +128,7 @@ void oled_render_text_w(wchar_t *bytes, uint16_t num_bytes, struct coords *to_co
     get_glyph_from_font(*ptr, glyph);
     if (glyph->buffer != 0) {
       called();
-      fb_set_bitmap(glyph, to_coords->left + shift, to_coords->top, 0, OR);
+      fb_set_bitmap(glyph, to_coords->left + shift, to_coords->top, OR);
       shift += glyph->width + 2;
     };
     ptr++;

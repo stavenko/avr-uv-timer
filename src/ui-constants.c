@@ -10,7 +10,6 @@ struct coords clock_timer_coords = {
 uint8_t space_in_word = 2;
 uint8_t space_in_sentence = 0x0e;
 
-/*
 const struct bitmap clockImageTexture = {
   8, 1, (uint8_t[]){
   0b00111100, 
@@ -36,4 +35,20 @@ const struct bitmap arrowImageTexture= {
   0b00011000, 
   }           
 };
-*/
+
+const struct bitmap frameTexture= {
+  12, 2, (uint8_t []) {
+  0b00001111, 0b11111111,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001000, 0b00000001,
+  0b00001111, 0b11111111,
+  }           
+};

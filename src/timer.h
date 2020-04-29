@@ -34,6 +34,7 @@ void press_button();
 void next_item();
 void prev_item();
 void ms_tick();
+void _debug();
 const struct Timer *get_app_state();
 
 #endif
