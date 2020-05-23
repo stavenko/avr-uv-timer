@@ -127,7 +127,6 @@ void oled_render_text_w(wchar_t *bytes, uint16_t num_bytes, struct coords *to_co
     }
     get_glyph_from_font(*ptr, glyph);
     if (glyph->buffer != 0) {
-      called();
       fb_set_bitmap(glyph, to_coords->left + shift, to_coords->top, OR);
       shift += glyph->width + 2;
     };

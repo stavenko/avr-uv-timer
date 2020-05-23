@@ -7,8 +7,8 @@ struct coords clock_timer_coords = {
   15, 
   10
 };
-uint8_t space_in_word = 2;
-uint8_t space_in_sentence = 0x0e;
+uint8_t space_in_word = 1;
+uint8_t space_in_sentence = 16;
 
 const struct bitmap clockImageTexture = {
   8, 1, (uint8_t[]){

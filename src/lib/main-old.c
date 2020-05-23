@@ -1,3 +1,4 @@
+/*
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/cpufunc.h> 
@@ -45,7 +46,6 @@ ISR (TIMER1_OVF_vect)
 
 
 
-uint8_t prev_pinb = 0x00;
 
 void process_sensor_state() {
   uint8_t new_value = PINB & DT_CLK;
@@ -87,7 +87,7 @@ void setup_timer() {
 }
 
 
-int main() { 
+int main_old() { 
   DDRD = (1 << LED) | (1 << PD0) | (1 << PD1) | (1 << PD2) | (1 << PD3);
   setup_timer();
   DDRB = 0x00;
@@ -108,3 +108,4 @@ int main() {
   };
   return 1;
 }
+*/

@@ -12,11 +12,7 @@ void fb_init() {
 
 void fb_clear() {
   for (int i = 0; i < 128; i++) {
-    if ( i == 127) {
-      framebuffer[i] = 0xffffffff;
-    }else {
-      framebuffer[i] = 0;
-    }
+    framebuffer[i] = 0;
   }
 }
 void fb_free() {
@@ -74,13 +70,19 @@ void fb_render_text(char* bytes, struct coords * to_coords, enum OPERATION op) {
   char *ptr = bytes;
   while (*ptr != 0) {
     if (*ptr == 0x20) {
-      shift += space_in_sentence;
+      shift += space_in_sentence + space_in_word;
       ptr++;
       continue;
     }
     get_glyph_from_font(*ptr, glyph);
     if (glyph->buffer != 0) {
+      uint8_t small_glyph = glyph->width < space_in_sentence;
+      uint8_t glyph_margins = small_glyph ? space_in_sentence - glyph->width: 0;
+      uint8_t left_margin = glyph_margins == 1 ? 1 : glyph_margins / 2;
+      uint8_t right_margin = glyph_margins - left_margin;
+      shift += left_margin;
       fb_set_bitmap(glyph, to_coords->left + shift, to_coords->top, OR);
+      shift += right_margin;
       shift += glyph->width;
       shift += space_in_word;
     };
